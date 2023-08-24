@@ -1,48 +1,54 @@
-import { Link, Form, useParams, useFetcher, useFetchers } from "@remix-run/react";
-import { Image, Money, Pagination } from "@shopify/hydrogen";
-import React, { useRef, useEffect } from "react";
+import {Link, Form, useParams, useFetcher, useFetchers} from '@remix-run/react';
+import {Image, Money, Pagination} from '@shopify/hydrogen';
+import React, {useRef, useEffect} from 'react';
 
 export const NO_PREDICTIVE_SEARCH_RESULTS = [
-  { type: "queries", items: [] },
-  { type: "products", items: [] },
-  { type: "collections", items: [] },
-  { type: "pages", items: [] },
-  { type: "articles", items: [] },
+  {type: 'queries', items: []},
+  {type: 'products', items: []},
+  {type: 'collections', items: []},
+  {type: 'pages', items: []},
+  {type: 'articles', items: []},
 ];
 
-export function SearchForm({ searchTerm }) {
+export function SearchForm({searchTerm}) {
   const inputRef = useRef(null);
 
   // focus the input when cmd+k is pressed
   useEffect(() => {
     function handleKeyDown(event) {
-      if (event.key === "k" && event.metaKey) {
+      if (event.key === 'k' && event.metaKey) {
         event.preventDefault();
         inputRef.current?.focus();
       }
 
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         inputRef.current?.blur();
       }
     }
 
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
   return (
     <Form method="get">
-      <input defaultValue={searchTerm} name="q" placeholder="Search…" ref={inputRef} type="search" />
+      <input
+        defaultValue={searchTerm}
+        name="q"
+        placeholder="Search…"
+        ref={inputRef}
+        type="search"
+      />
       &nbsp;
       <button type="submit">Search</button>
     </Form>
   );
 }
 
-export function SearchResults({ results }) {
+export function SearchResults({results}) {
   if (!results) {
     return null;
   }
@@ -53,22 +59,30 @@ export function SearchResults({ results }) {
         keys.map((type) => {
           const resourceResults = results[type];
 
-          if (resourceResults.nodes[0]?.__typename === "Page") {
+          if (resourceResults.nodes[0]?.__typename === 'Page') {
             const pageResults = resourceResults;
-            return resourceResults.nodes.length ? <SearchResultPageGrid key="pages" pages={pageResults} /> : null;
-          }
-
-          if (resourceResults.nodes[0]?.__typename === "Product") {
-            const productResults = resourceResults;
             return resourceResults.nodes.length ? (
-              <SearchResultsProductsGrid key="products" products={productResults} />
+              <SearchResultPageGrid key="pages" pages={pageResults} />
             ) : null;
           }
 
-          if (resourceResults.nodes[0]?.__typename === "Article") {
+          if (resourceResults.nodes[0]?.__typename === 'Product') {
+            const productResults = resourceResults;
+            return resourceResults.nodes.length ? (
+              <SearchResultsProductsGrid
+                key="products"
+                products={productResults}
+              />
+            ) : null;
+          }
+
+          if (resourceResults.nodes[0]?.__typename === 'Article') {
             const articleResults = resourceResults;
             return resourceResults.nodes.length ? (
-              <SearchResultArticleGrid key="articles" articles={articleResults} />
+              <SearchResultArticleGrid
+                key="articles"
+                articles={articleResults}
+              />
             ) : null;
           }
 
@@ -78,12 +92,12 @@ export function SearchResults({ results }) {
   );
 }
 
-function SearchResultsProductsGrid({ products }) {
+function SearchResultsProductsGrid({products}) {
   return (
     <div className="search-result">
       <h3>Products</h3>
       <Pagination connection={products}>
-        {({ nodes, isLoading, NextLink, PreviousLink }) => {
+        {({nodes, isLoading, NextLink, PreviousLink}) => {
           const itemsMarkup = nodes.map((product) => (
             <div className="search-results-item" key={product.id}>
               <Link prefetch="intent" to={`/products/${product.handle}`}>
@@ -94,14 +108,18 @@ function SearchResultsProductsGrid({ products }) {
           return (
             <div>
               <div>
-                <PreviousLink>{isLoading ? "Loading..." : <span>↑ Load previous</span>}</PreviousLink>
+                <PreviousLink>
+                  {isLoading ? 'Loading...' : <span>↑ Load previous</span>}
+                </PreviousLink>
               </div>
               <div>
                 {itemsMarkup}
                 <br />
               </div>
               <div>
-                <NextLink>{isLoading ? "Loading..." : <span>Load more ↓</span>}</NextLink>
+                <NextLink>
+                  {isLoading ? 'Loading...' : <span>Load more ↓</span>}
+                </NextLink>
               </div>
             </div>
           );
@@ -112,7 +130,7 @@ function SearchResultsProductsGrid({ products }) {
   );
 }
 
-function SearchResultPageGrid({ pages }) {
+function SearchResultPageGrid({pages}) {
   return (
     <div className="search-result">
       <h2>Pages</h2>
@@ -130,7 +148,7 @@ function SearchResultPageGrid({ pages }) {
   );
 }
 
-function SearchResultArticleGrid({ articles }) {
+function SearchResultArticleGrid({articles}) {
   return (
     <div className="search-result">
       <h2>Articles</h2>
@@ -158,8 +176,8 @@ export function NoSearchResults() {
 export function PredictiveSearchForm({
   action,
   children,
-  className = "predictive-search-form",
-  method = "POST",
+  className = 'predictive-search-form',
+  method = 'POST',
   ...props
 }) {
   const params = useParams();
@@ -167,16 +185,21 @@ export function PredictiveSearchForm({
   const inputRef = useRef(null);
 
   function fetchResults(event) {
-    const searchAction = action ?? "/api/predictive-search";
-    const localizedAction = params.locale ? `/${params.locale}${searchAction}` : searchAction;
-    const newSearchTerm = event.target.value || "";
-    fetcher.submit({ q: newSearchTerm, limit: "6" }, { method, action: localizedAction });
+    const searchAction = action ?? '/api/predictive-search';
+    const localizedAction = params.locale
+      ? `/${params.locale}${searchAction}`
+      : searchAction;
+    const newSearchTerm = event.target.value || '';
+    fetcher.submit(
+      {q: newSearchTerm, limit: '6'},
+      {method, action: localizedAction},
+    );
   }
 
   // ensure the passed input has a type of search, because SearchResults
   // will select the element based on the input
   useEffect(() => {
-    inputRef?.current?.setAttribute("type", "search");
+    inputRef?.current?.setAttribute('type', 'search');
   }, []);
 
   return (
@@ -186,24 +209,25 @@ export function PredictiveSearchForm({
       onSubmit={(event) => {
         event.preventDefault();
         event.stopPropagation();
-        if (!inputRef?.current || inputRef.current.value === "") {
+        if (!inputRef?.current || inputRef.current.value === '') {
           return;
         }
         inputRef.current.blur();
       }}
     >
-      {children({ fetchResults, inputRef, fetcher })}
+      {children({fetchResults, inputRef, fetcher})}
     </fetcher.Form>
   );
 }
 
 export function PredictiveSearchResults() {
-  const { results, totalResults, searchInputRef, searchTerm } = usePredictiveSearch();
+  const {results, totalResults, searchInputRef, searchTerm} =
+    usePredictiveSearch();
 
   function goToSearchResult(event) {
     if (!searchInputRef.current) return;
     searchInputRef.current.blur();
-    searchInputRef.current.value = "";
+    searchInputRef.current.value = '';
     // close the aside
     window.location.href = event.currentTarget.href;
   }
@@ -214,7 +238,7 @@ export function PredictiveSearchResults() {
   return (
     <div className="predictive-search-results">
       <div>
-        {results.map(({ type, items }) => (
+        {results.map(({type, items}) => (
           <PredictiveSearchResult
             goToSearchResult={goToSearchResult}
             items={items}
@@ -237,7 +261,7 @@ export function PredictiveSearchResults() {
   );
 }
 
-function NoPredictiveSearchResults({ searchTerm }) {
+function NoPredictiveSearchResults({searchTerm}) {
   if (!searchTerm.current) {
     return null;
   }
@@ -248,29 +272,42 @@ function NoPredictiveSearchResults({ searchTerm }) {
   );
 }
 
-function PredictiveSearchResult({ goToSearchResult, items, searchTerm, type }) {
-  const isSuggestions = type === "queries";
-  const categoryUrl = `/search?q=${searchTerm.current}&type=${pluralToSingularSearchType(type)}`;
+function PredictiveSearchResult({goToSearchResult, items, searchTerm, type}) {
+  const isSuggestions = type === 'queries';
+  const categoryUrl = `/search?q=${
+    searchTerm.current
+  }&type=${pluralToSingularSearchType(type)}`;
 
   return (
     <div className="predictive-search-result" key={type}>
       <Link prefetch="intent" to={categoryUrl} onClick={goToSearchResult}>
-        <h5>{isSuggestions ? "Suggestions" : type}</h5>
+        <h5>{isSuggestions ? 'Suggestions' : type}</h5>
       </Link>
       <ul>
         {items.map((item) => (
-          <SearchResultItem goToSearchResult={goToSearchResult} item={item} key={item.id} />
+          <SearchResultItem
+            goToSearchResult={goToSearchResult}
+            item={item}
+            key={item.id}
+          />
         ))}
       </ul>
     </div>
   );
 }
 
-function SearchResultItem({ goToSearchResult, item }) {
+function SearchResultItem({goToSearchResult, item}) {
   return (
     <li className="predictive-search-result-item" key={item.id}>
       <Link onClick={goToSearchResult} to={item.url}>
-        {item.image?.url && <Image alt={item.image.altText ?? ""} src={item.image.url} width={50} height={50} />}
+        {item.image?.url && (
+          <Image
+            alt={item.image.altText ?? ''}
+            src={item.image.url}
+            width={50}
+            height={50}
+          />
+        )}
         <div>
           {item.styledTitle ? (
             <div
@@ -294,12 +331,12 @@ function SearchResultItem({ goToSearchResult, item }) {
 
 function usePredictiveSearch() {
   const fetchers = useFetchers();
-  const searchTerm = useRef("");
+  const searchTerm = useRef('');
   const searchInputRef = useRef(null);
   const searchFetcher = fetchers.find((fetcher) => fetcher.data?.searchResults);
 
-  if (searchFetcher?.state === "loading") {
-    searchTerm.current = searchFetcher.formData?.get("q") || "";
+  if (searchFetcher?.state === 'loading') {
+    searchTerm.current = searchFetcher.formData?.get('q') || '';
   }
 
   const search = searchFetcher?.data?.searchResults || {
@@ -313,7 +350,7 @@ function usePredictiveSearch() {
     searchInputRef.current = document.querySelector('input[type="search"]');
   }, []);
 
-  return { ...search, searchInputRef, searchTerm };
+  return {...search, searchInputRef, searchTerm};
 }
 
 /**
@@ -329,16 +366,16 @@ function usePredictiveSearch() {
  */
 function pluralToSingularSearchType(type) {
   const plural = {
-    articles: "ARTICLE",
-    collections: "COLLECTION",
-    pages: "PAGE",
-    products: "PRODUCT",
-    queries: "QUERY",
+    articles: 'ARTICLE',
+    collections: 'COLLECTION',
+    pages: 'PAGE',
+    products: 'PRODUCT',
+    queries: 'QUERY',
   };
 
-  if (typeof type === "string") {
+  if (typeof type === 'string') {
     return plural[type];
   }
 
-  return type.map((t) => plural[t]).join(",");
+  return type.map((t) => plural[t]).join(',');
 }
