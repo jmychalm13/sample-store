@@ -1,71 +1,24 @@
-import { Await } from "@remix-run/react";
-import { Suspense } from "react";
-import { Aside } from "~/components/Aside";
-import { Footer } from "~/components/Footer";
-import { Header, HeaderMenu } from "~/components/Header";
-import { CartMain } from "~/components/Cart";
-import { PredictiveSearchForm, PredictiveSearchResults } from "~/components/Search";
-
-export function Layout({ cart, children = null, footer, header, isLoggedIn }) {
+export function Layout({children, title}) {
   return (
-    <>
-      <CartAside cart={cart} />
-      <SearchAside />
-      <MobileMenuAside menu={header.menu} />
-      <Header header={header} cart={cart} isLoggedIn={isLoggedIn} />
-      <main>{children}</main>
-      <Suspense>
-        <Await resolve={footer}>{(footer) => <Footer menu={footer.menu} />}</Await>
-      </Suspense>
-    </>
-  );
-}
+    <div className="flex flex-col min-h-screen antialiased bg-neutral-50">
+      <header
+        role="banner"
+        className={`flex items-center h-16 p-6 md:p-8 lg:p-12 sticky backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 antialiased transition shadow-sm`}
+      >
+        <div className="flex gap-12">
+          <a className="font-bold" href="/">
+            {title}
+          </a>
+        </div>
+      </header>
 
-function CartAside({ cart }) {
-  return (
-    <Aside id="cart-aside" heading="CART">
-      <Suspense fallback={<p>Loading cart ...</p>}>
-        <Await resolve={cart}>
-          {(cart) => {
-            return <CartMain cart={cart} layout="aside" />;
-          }}
-        </Await>
-      </Suspense>
-    </Aside>
-  );
-}
-
-function SearchAside() {
-  return (
-    <Aside id="search-aside" heading="SEARCH">
-      <div className="predictive-search">
-        <br />
-        <PredictiveSearchForm>
-          {({ fetchResults, inputRef }) => (
-            <div>
-              <input
-                name="q"
-                onChange={fetchResults}
-                onFocus={fetchResults}
-                placeholder="Search"
-                ref={inputRef}
-                type="search"
-              />
-              &nbsp;
-              <button type="submit">Search</button>
-            </div>
-          )}
-        </PredictiveSearchForm>
-        <PredictiveSearchResults />
-      </div>
-    </Aside>
-  );
-}
-
-function MobileMenuAside({ menu }) {
-  return (
-    <Aside id="mobile-menu-aside" heading="MENU">
-      <HeaderMenu menu={menu} viewport="mobile" />
-    </Aside>
+      <main
+        role="main"
+        id="mainContent"
+        className="flex-grow p-6 md:p-8 lg:p-12"
+      >
+        {children}
+      </main>
+    </div>
   );
 }
